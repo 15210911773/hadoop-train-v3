@@ -1,6 +1,7 @@
 package com.bigdata.hadoop.mr.wc;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -8,7 +9,9 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import javax.print.attribute.standard.Fidelity;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
@@ -31,6 +34,10 @@ public class WordCountApp {
         // 设置Job对应的主类
         job.setJarByClass(WordCountApp.class);
         job.setMapperClass(WordCountMapper.class);
+        /**
+         * combiner与reducer完全一样
+         */
+        job.setCombinerClass(WordCountReducer.class);
         job.setReducerClass(WordCountReducer.class);
 
         /**
@@ -45,6 +52,12 @@ public class WordCountApp {
          */
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
+
+        FileSystem fs = FileSystem.get(new URI("hdfs://zhege:8020"), configuration, "hadoop");
+        boolean exists = fs.exists(new Path("/wordcount/output"));
+        if (exists) {
+            fs.delete(new Path("/wordcount/output"), true);
+        }
 
         FileInputFormat.setInputPaths(job, new Path("/wordcount/input"));
         FileOutputFormat.setOutputPath(job, new Path("/wordcount/output"));
