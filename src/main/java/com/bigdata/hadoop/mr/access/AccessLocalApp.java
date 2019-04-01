@@ -32,6 +32,8 @@ public class AccessLocalApp {
         job.setJarByClass(AccessLocalApp.class);
         job.setMapperClass(AccessMapper.class);
         job.setReducerClass(AccessReducer.class);
+        job.setPartitionerClass(AccessPartitioner.class);
+        job.setNumReduceTasks(2);
 
         /**
          * Mapper输出key和value的类型
